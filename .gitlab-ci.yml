@@ -1,0 +1,118 @@
+stages:
+  - build
+  - private_deploy
+  - test
+
+image: ${CI_DOCKER_REGISTRY}/llvm-build:1-ce736dab
+
+variables:
+
+  CLANG_XTENSA_TOOLCHAIN: xtensa-esp32-elf-clang
+  CLANG_ARCHIVE: xtensa-esp32-elf-clang.tar.xz
+
+before_script:
+  # Use CI Tools
+  - curl -sSL ${CIT_LOADER_URL} | sh
+  - source citools/import_functions
+  - apt-get update && apt-get install -y -q --no-install-recommends --fix-missing gcc-8 g++-8 build-essential timelimit software-properties-common
+  - apt-get install -y cmake
+  - add-apt-repository ppa:deadsnakes/ppa
+  - apt install -y python2.7 pkg-config zlib1g-dev libglib2.0-dev libpixman-1-dev
+  - ln -s /usr/bin/python2.7 /usr/bin/python
+  - ln -s /usr/bin/python2.7 /usr/bin/python2
+  #- apt-get install python2
+  - apt-get update && apt-get install -y -q --no-install-recommends gcc-8 build-essential g++-8 build-essential
+    
+  - rm -rf /var/lib/apt/lists/*
+  - update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 700 --slave /usr/bin/g++ g++ /usr/bin/g++-7
+  - update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 800 --slave /usr/bin/g++ g++ /usr/bin/g++-8
+  #- apt install -y python-minimal
+  - ls -l /usr/bin/
+
+.add_gitlab_key: &add_gitlab_key |
+  cit_add_ssh_key "${GITLAB_KEY}" "$(cit_parse_url_host ${GITLAB_SSH_SERVER})" "$(cit_parse_url_port ${GITLAB_SSH_SERVER})"
+
+
+.build_clang: &build_clang |
+  mkdir build
+  cd build
+  cmake ../llvm  -DLLVM_TARGETS_TO_BUILD="" -DLLVM_EXPERIMENTAL_TARGETS_TO_BUILD=Xtensa -DCMAKE_BUILD_TYPE=Release  -DLLVM_EXTERNAL_CLANG_SOURCE_DIR=../clang
+  cmake --build . -- -j8
+  cd ..
+
+# Get an existing crosstool-ng build for esp32
+.get_gcc_toolchain: &get_gcc_toolchain |
+  wget https://dl.espressif.com/dl/xtensa-esp32-elf-gcc8_2_0-esp-2019r2-linux-amd64.tar.gz
+  tar -xf xtensa-esp32-elf-gcc8_2_0-esp-2019r2-linux-amd64.tar.gz 
+  mv xtensa-esp32-elf ${CLANG_XTENSA_TOOLCHAIN}
+
+.get_qemu: &get_qemu |
+  QEMU_ARCHVE=qemu_esp32_build-2.7.0-gc372de.tar.gz
+  wget --no-verbose https://ci.espressif.cn:42348/cache/qemu/${QEMU_ARCHVE}
+  tar -xf ${QEMU_ARCHVE}
+  ls -l -d qemu_esp32_build
+
+.build_clang_wrappers: &build_clang_wrappers |
+  git clone $GITLAB_SSH_SERVER/safronov/xtensa-clang-toolchain.git
+  cd xtensa-clang-toolchain
+  make build_clang_wrap
+  cd ..
+ 
+ 
+build_clang_toolchain:
+  stage: build
+  image: ${CI_DOCKER_REGISTRY}/llvm-build:1-ce736dab
+  artifacts:
+    paths:
+      - ${CLANG_ARCHIVE}
+    when: always
+    expire_in: 10 day
+  script:
+    - *add_gitlab_key
+    - *build_clang_wrappers
+    - *build_clang
+    - *get_gcc_toolchain
+    - mv build/bin/clang ${CLANG_XTENSA_TOOLCHAIN}/bin/
+    - mv build/bin/clang++ ${CLANG_XTENSA_TOOLCHAIN}/bin/
+    - mv build/bin/clang-9 ${CLANG_XTENSA_TOOLCHAIN}/bin/
+    - mv build/bin/clang-cl ${CLANG_XTENSA_TOOLCHAIN}/bin/
+    - mv build/bin/clang-cpp ${CLANG_XTENSA_TOOLCHAIN}/bin/
+    - mv build/bin/scan-build ${CLANG_XTENSA_TOOLCHAIN}/bin/
+    - mv build/libexec/* ${CLANG_XTENSA_TOOLCHAIN}/libexec/
+    - mv build/lib/clang ${CLANG_XTENSA_TOOLCHAIN}/lib/
+    - mv xtensa-clang-toolchain/xtensa-esp32-elf-clang* ${CLANG_XTENSA_TOOLCHAIN}/bin/
+    - tar -cJf ${CI_PROJECT_DIR}/${CLANG_ARCHIVE} ${CLANG_XTENSA_TOOLCHAIN}
+
+testsuite:
+  stage: test
+  image: ${CI_DOCKER_REGISTRY}/llvm-build:1-ce736dab
+  script:
+    - tar -xf ${CLANG_ARCHIVE}
+
+    # getting testsuit
+    - *add_gitlab_key
+    - git clone -b feature/ci_llvm_multitarget --depth 1 $GITLAB_SSH_SERVER/idf/llvm-xtensa-testsuite.git
+
+    # preparing testsuit
+    - export PATH=$PATH:${PWD}/${CLANG_XTENSA_TOOLCHAIN}/bin/
+    - cd llvm-xtensa-testsuite
+
+    # qemu
+    - ./qemu_esp32_install.sh
+
+    # run testsuite for esp32
+    - ./run_esp32_tests.sh
+
+upload_to_http:
+  stage: private_deploy
+  when: manual
+  allow_failure: true
+  tags: [ "deploy", "shiny" ]
+  before_script:
+    - curl -sSL ${CIT_LOADER_URL} | sh
+    - source citools/import_functions
+  script:
+    - cit_add_ssh_key "${HTTP_UPLOAD_KEY}"
+    - scp "${CLANG_ARCHIVE}" "${HTTP_UPLOAD_DIR}"
+    # Show info
+    - echo -e "\n\t\tAn archive was published there:\n\n${HTTP_PUBLIC_DIR}/${CLANG_ARCHIVE}"
