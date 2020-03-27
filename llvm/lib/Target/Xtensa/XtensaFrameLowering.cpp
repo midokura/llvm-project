@@ -344,12 +344,6 @@ void XtensaFrameLowering::determineCalleeSaves(MachineFunction &MF,
   unsigned FP = RegInfo->getFrameRegister(MF);
 
   if (STI.isWinABI()) {
-    // It's some trick, 8 regsiters are marked as spilled,
-    // but real spill is in ENTRY instruction in case of register bank overflow
-    SavedRegs.resize(RegInfo->getNumRegs());
-    for (int i = Xtensa::A8; i <= Xtensa::A15; i++)
-      SavedRegs.set(i);
-
     return;
   }
 

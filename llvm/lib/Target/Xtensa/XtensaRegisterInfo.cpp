@@ -31,8 +31,11 @@ using namespace llvm;
 // WinABI callee save list - empty
 static const MCPhysReg CSRWE_Xtensa_SaveList[] = {0};
 
-// WinABI call preserved mask - empty
-static const uint32_t CSRWE_Xtensa_RegMask[] = {0};
+// WinABI call preserved mask
+static const uint32_t CSRWE_Xtensa_RegMask[] = {
+    Xtensa::A0, Xtensa::SP, Xtensa::A2, Xtensa::A3,
+    Xtensa::A4, Xtensa::A5, Xtensa::A6, Xtensa::A7
+};
 
 XtensaRegisterInfo::XtensaRegisterInfo(const XtensaSubtarget &STI)
     : XtensaGenRegisterInfo(Xtensa::A0), Subtarget(STI) {}
@@ -61,12 +64,11 @@ BitVector XtensaRegisterInfo::getReservedRegs(const MachineFunction &MF) const {
   Reserved.set(Xtensa::A0);
   if (TFI->hasFP(MF)) {
     // fp is the frame pointer.  Reserve all aliases.
-    Reserved.set(Xtensa::A15);
+    Reserved.set(getFrameRegister(MF));
   }
 
   // sp is the stack pointer.  Reserve all aliases.
   Reserved.set(Xtensa::SP);
-  Reserved.set(Xtensa::A7);
   return Reserved;
 }
 
