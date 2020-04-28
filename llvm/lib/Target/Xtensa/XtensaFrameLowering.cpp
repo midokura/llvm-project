@@ -127,6 +127,16 @@ void XtensaFrameLowering::emitPrologue(MachineFunction &MF,
       BuildMI(MBB, MBBI, dl, TII.get(Xtensa::MOVSP), SP).addReg(TmpReg);
     }
 
+    // Store FP register in A8, because FP may be used to pass function
+    // arguments
+    if (STI.hasDensity()) {
+      BuildMI(MBB, MBBI, dl, TII.get(Xtensa::MOV_N), Xtensa::A8).addReg(FP);
+    } else {
+      BuildMI(MBB, MBBI, dl, TII.get(Xtensa::OR), Xtensa::A8)
+          .addReg(FP)
+          .addReg(FP);
+    }
+
     // if framepointer enabled, set it to point to the stack pointer.
     if (hasFP(MF)) {
       // Insert instruction "move $fp, $sp" at this location.
@@ -158,7 +168,15 @@ void XtensaFrameLowering::emitPrologue(MachineFunction &MF,
     if (StackSize == 0 && !MFI.adjustsStack())
       return;
 
-    // MachineLocation DstML, SrcML;
+    // Store FP register in A8, because FP may be used to pass function
+    // arguments
+    if (STI.hasDensity()) {
+      BuildMI(MBB, MBBI, dl, TII.get(Xtensa::MOV_N), Xtensa::A8).addReg(FP);
+    } else {
+      BuildMI(MBB, MBBI, dl, TII.get(Xtensa::OR), Xtensa::A8)
+          .addReg(FP)
+          .addReg(FP);
+    }
 
     // Adjust stack.
     TII.adjustStackPtr(SP, -StackSize, MBB, MBBI);

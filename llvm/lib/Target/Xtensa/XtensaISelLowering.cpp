@@ -739,7 +739,17 @@ SDValue XtensaTargetLowering::LowerFormalArguments(
 
       // Transform the arguments stored on
       // physical registers into virtual ones
-      unsigned Reg = MF.addLiveIn(VA.getLocReg(), RC);
+      unsigned Reg = 0;
+      unsigned FrameReg = Subtarget.getRegisterInfo()->getFrameRegister(MF);
+
+      // Argument passed in FrameReg we save in A8 (in emitPrologue), 
+      // so load argument from A8
+      if (VA.getLocReg() == FrameReg) {
+        Reg = MF.addLiveIn(Xtensa::A8, RC);
+      } else {
+        Reg = MF.addLiveIn(VA.getLocReg(), RC);
+      }
+
       SDValue ArgValue = DAG.getCopyFromReg(Chain, DL, Reg, RegVT);
 
       // If this is an 8 or 16-bit value, it has been passed promoted
@@ -818,7 +828,16 @@ SDValue XtensaTargetLowering::LowerFormalArguments(
     // to the vararg save area.
     for (unsigned I = Idx; I < ArgRegs.size(); ++I, VaArgOffset += RegSize) {
       const unsigned Reg = RegInfo.createVirtualRegister(RC);
-      RegInfo.addLiveIn(ArgRegs[I], Reg);
+      unsigned FrameReg = Subtarget.getRegisterInfo()->getFrameRegister(MF);
+
+      // Argument passed in FrameReg we save in A8 (in emitPrologue),
+      // so load argument from A8
+      if (ArgRegs[I] == FrameReg) {
+        RegInfo.addLiveIn(Xtensa::A8, Reg);
+      } else {
+        RegInfo.addLiveIn(ArgRegs[I], Reg);
+      }
+
       SDValue ArgValue = DAG.getCopyFromReg(Chain, DL, Reg, RegTy);
       FI = MFI.CreateFixedObject(RegSize, VaArgOffset, true);
       SDValue PtrOff = DAG.getFrameIndex(FI, getPointerTy(DAG.getDataLayout()));
