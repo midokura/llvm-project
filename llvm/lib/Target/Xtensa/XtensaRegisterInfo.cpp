@@ -28,15 +28,6 @@
 
 using namespace llvm;
 
-// WinABI callee save list - empty
-static const MCPhysReg CSRWE_Xtensa_SaveList[] = {0};
-
-// WinABI call preserved mask
-static const uint32_t CSRWE_Xtensa_RegMask[] = {
-    Xtensa::A0, Xtensa::SP, Xtensa::A2, Xtensa::A3,
-    Xtensa::A4, Xtensa::A5, Xtensa::A6, Xtensa::A7
-};
-
 XtensaRegisterInfo::XtensaRegisterInfo(const XtensaSubtarget &STI)
     : XtensaGenRegisterInfo(Xtensa::A0), Subtarget(STI) {}
 
