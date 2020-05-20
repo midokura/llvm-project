@@ -67,7 +67,7 @@ static const unsigned ARDecoderTable[] = {
 static DecodeStatus DecodeARRegisterClass(MCInst &Inst, uint64_t RegNo,
                                           uint64_t Address,
                                           const void *Decoder) {
-  if (RegNo > sizeof(ARDecoderTable))
+  if (RegNo >= array_lengthof(ARDecoderTable))
     return MCDisassembler::Fail;
 
   unsigned Reg = ARDecoderTable[RegNo];
@@ -83,7 +83,7 @@ static const unsigned FPRDecoderTable[] = {
 static DecodeStatus DecodeFPRRegisterClass(MCInst &Inst, uint64_t RegNo,
                                            uint64_t Address,
                                            const void *Decoder) {
-  if (RegNo > sizeof(FPRDecoderTable))
+  if (RegNo >= array_lengthof(FPRDecoderTable))
     return MCDisassembler::Fail;
 
   unsigned Reg = FPRDecoderTable[RegNo];
@@ -99,7 +99,7 @@ static const unsigned BRDecoderTable[] = {
 static DecodeStatus DecodeBRRegisterClass(MCInst &Inst, uint64_t RegNo,
                                           uint64_t Address,
                                           const void *Decoder) {
-  if (RegNo > sizeof(BRDecoderTable))
+  if (RegNo >= array_lengthof(BRDecoderTable))
     return MCDisassembler::Fail;
 
   unsigned Reg = BRDecoderTable[RegNo];
@@ -315,7 +315,7 @@ static DecodeStatus DecodeSRRegisterClass(MCInst &Inst, uint64_t RegNo,
   if (RegNo > 255)
     return MCDisassembler::Fail;
 
-  for (unsigned i = 0; i < sizeof(SRDecoderTable); i += 2) {
+  for (unsigned i = 0; i < array_lengthof(SRDecoderTable); i += 2) {
     if (SRDecoderTable[i + 1] == RegNo) {
       unsigned Reg = SRDecoderTable[i];
 
@@ -329,6 +329,46 @@ static DecodeStatus DecodeSRRegisterClass(MCInst &Inst, uint64_t RegNo,
   }
 
   return MCDisassembler::Fail;
+}
+
+static const unsigned MRDecoderTable[] = {
+    Xtensa::M0,  Xtensa::M1,  Xtensa::M2,  Xtensa::M3};
+
+static DecodeStatus DecodeMRRegisterClass(MCInst &Inst, uint64_t RegNo,
+                                          uint64_t Address,
+                                          const void *Decoder) {
+  if (RegNo >= array_lengthof(MRDecoderTable))
+    return MCDisassembler::Fail;
+
+  unsigned Reg = MRDecoderTable[RegNo];
+  Inst.addOperand(MCOperand::createReg(Reg));
+  return MCDisassembler::Success;
+}
+
+static const unsigned MR01DecoderTable[] = {Xtensa::M0, Xtensa::M1};
+
+static DecodeStatus DecodeMR01RegisterClass(MCInst &Inst, uint64_t RegNo,
+                                            uint64_t Address,
+                                            const void *Decoder) {
+  if (RegNo >= array_lengthof(MR01DecoderTable))
+    return MCDisassembler::Fail;
+
+  unsigned Reg = MR01DecoderTable[RegNo];
+  Inst.addOperand(MCOperand::createReg(Reg));
+  return MCDisassembler::Success;
+}
+
+static const unsigned MR23DecoderTable[] = {Xtensa::M2, Xtensa::M3};
+
+static DecodeStatus DecodeMR23RegisterClass(MCInst &Inst, uint64_t RegNo,
+                                          uint64_t Address,
+                                          const void *Decoder) {
+  if ((RegNo < 2) || (RegNo > 3))
+    return MCDisassembler::Fail;
+
+  unsigned Reg = MR23DecoderTable[RegNo-2];
+  Inst.addOperand(MCOperand::createReg(Reg));
+  return MCDisassembler::Success;
 }
 
 static const unsigned URDecoderTable[] = {
@@ -345,7 +385,7 @@ static DecodeStatus DecodeURRegisterClass(MCInst &Inst, uint64_t RegNo,
   if (RegNo > 255)
     return MCDisassembler::Fail;
 
-  for (unsigned i = 0; i < sizeof(URDecoderTable); i += 2) {
+  for (unsigned i = 0; i < array_lengthof(URDecoderTable); i += 2) {
     if (URDecoderTable[i + 1] == RegNo) {
       unsigned Reg = URDecoderTable[i];
 

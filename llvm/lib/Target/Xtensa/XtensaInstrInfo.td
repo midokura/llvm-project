@@ -600,8 +600,11 @@ def WSR: RSR_Inst<0x00, 0x03, 0x01, (outs SR:$sr), (ins AR:$t),
 def RSR: RSR_Inst<0x00, 0x03, 0x00, (outs AR:$t), (ins SR:$sr),
                  "rsr\t$t, $sr", []>;
 
-def XSR: RSR_Inst<0x00, 0x01, 0x06, (outs), (ins AR:$t, SR:$sr),
-                 "xsr\t$t, $sr", []>;
+def XSR: RSR_Inst<0x00, 0x01, 0x06, (outs AR:$ard, SR:$srd), (ins AR:$t, SR:$sr),
+                 "xsr\t$t, $sr", []>
+{
+  let Constraints = "$ard = $t, $srd = $sr";
+}
 
 def WUR: RRR_Inst<0x00, 0x03, 0x0F, (outs UR:$ur), (ins AR:$t),
                  "wur\t$t, $ur", []>
@@ -1460,3 +1463,8 @@ let usesCustomInserter = 1, Predicates = [HasS32C1I] in
 										[(set AR:$dst, (atomic_load_umax_32 AR:$ptr, AR:$arg))]>;	
 }
 
+//===----------------------------------------------------------------------===//
+// DSP instructions
+//===----------------------------------------------------------------------===//
+
+include "XtensaDSPInstrInfo.td"

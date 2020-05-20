@@ -203,8 +203,12 @@ def MISC1 : SRReg<245, "misc1", ["MISC1", "245"]>;
 def MISC2 : SRReg<246, "misc2", ["MISC2", "246"]>;
 def MISC3 : SRReg<247, "misc3", ["MISC3", "247"]>;
 
+def MR01 :  RegisterClass<"Xtensa", [i32], 32, (add M0, M1)>;
+def MR23 :  RegisterClass<"Xtensa", [i32], 32, (add M2, M3)>;
+def MR :  RegisterClass<"Xtensa", [i32], 32, (add MR01, MR23)>;
+
 def SR :  RegisterClass<"Xtensa", [i32], 32, (add 
-  LBEG, LEND, LCOUNT, SAR, BREG, LITBASE, SCOMPARE1, ACCLO, ACCHI, M0, M1, M2, M3,
+  LBEG, LEND, LCOUNT, SAR, BREG, LITBASE, SCOMPARE1, ACCLO, ACCHI, MR,
   WINDOWBASE, WINDOWSTART, IBREAKENABLE, MEMCTL, ATOMCTL, DDR, IBREAKA0, IBREAKA1,
   DBREAKA0, DBREAKA1, DBREAKC0, DBREAKC1, CONFIGID0, EPC1, EPC2, EPC3, EPC4, EPC5, 
   EPC6, EPC7, DEPC, EPS2, EPS3, EPS4, EPS5, EPS6, EPS7, CONFIGID1, EXCSAVE1, EXCSAVE2,

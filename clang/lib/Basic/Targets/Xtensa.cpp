@@ -20,12 +20,23 @@
 using namespace clang;
 using namespace clang::targets;
 
+const Builtin::Info XtensaTargetInfo::BuiltinInfo[] = {
+#define BUILTIN(ID, TYPE, ATTRS)                                               \
+  {#ID, TYPE, ATTRS, nullptr, ALL_LANGUAGES, nullptr},
+#include "clang/Basic/BuiltinsXtensa.def"
+};
+
 void XtensaTargetInfo::getTargetDefines(const LangOptions &Opts,
-                      MacroBuilder &Builder) const {
+                                        MacroBuilder &Builder) const {
   Builder.defineMacro("__Xtensa__");
   Builder.defineMacro("__xtensa__");
   Builder.defineMacro("__XTENSA__");
   Builder.defineMacro("__XTENSA_WINDOWED_ABI__");
-  Builder.defineMacro("__XTENSA_EL__");    
+  Builder.defineMacro("__XTENSA_EL__");
+}
+
+ArrayRef<Builtin::Info> XtensaTargetInfo::getTargetBuiltins() const {
+  return llvm::makeArrayRef(BuiltinInfo, clang::Xtensa::LastTSBuiltin -
+                                             Builtin::FirstTSBuiltin);
 }
 
