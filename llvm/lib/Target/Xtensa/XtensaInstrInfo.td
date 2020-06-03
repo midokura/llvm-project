@@ -1338,6 +1338,23 @@ let mayStore = 1, mayLoad = 1, usesCustomInserter = 1, Predicates = [HasS32C1I] 
   }
 }
 
+def RFDE: RRR_Inst<0x00, 0x00, 0x00, (outs), (ins),
+                  "rfde", []>, Requires<[HasException]>
+{
+  let r = 0x3;
+  let s = 0x2;
+  let t = 0x0;
+}
+
+
+def RFE: RRR_Inst<0x00, 0x00, 0x00, (outs), (ins),
+                 "rfe", []>, Requires<[HasException]>
+{
+  let r = 0x3;
+  let s = 0x0;
+  let t = 0x0;
+}
+
 //===----------------------------------------------------------------------===//
 // Atomic patterns
 //===----------------------------------------------------------------------===//
