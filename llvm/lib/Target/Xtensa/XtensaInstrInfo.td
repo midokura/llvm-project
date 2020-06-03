@@ -1259,8 +1259,8 @@ def : Pat<(i32 (extloadi16 addr_ish2:$addr)), (L16UI addr_ish2:$addr)>;
 //break
 let isBarrier = 1, isTerminator = 1 in
 {
-  def BREAK: RRR_Inst<0x00, 0x00, 0x00, (outs), (ins i32imm:$t, i32imm:$s),
-                     "break\t$t, $s", []>
+  def BREAK: RRR_Inst<0x00, 0x00, 0x00, (outs), (ins i32imm:$s, i32imm:$t),
+                     "break\t$s, $t", []>
   {
     let r = 0x04;
   }
