@@ -15,7 +15,9 @@ add_public_tablegen_target(XtensaCommonTableGen)
 add_llvm_target(XtensaCodeGen
   XtensaAsmPrinter.cpp
   XtensaConstantPoolValue.cpp
+  XtensaFixupHWLoops.cpp
   XtensaFrameLowering.cpp
+  XtensaHardwareLoops.cpp
   XtensaInstrInfo.cpp
   XtensaISelDAGToDAG.cpp
   XtensaISelLowering.cpp
@@ -25,6 +27,7 @@ add_llvm_target(XtensaCodeGen
   XtensaSizeReductionPass.cpp
   XtensaSubtarget.cpp
   XtensaTargetMachine.cpp
+  XtensaTargetTransformInfo.cpp
   )
 
 add_subdirectory(AsmParser)

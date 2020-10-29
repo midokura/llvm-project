@@ -13,6 +13,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "XtensaTargetMachine.h"
+#include "XtensaTargetTransformInfo.h"
 #include "llvm/CodeGen/Passes.h"
 #include "llvm/CodeGen/TargetLoweringObjectFileImpl.h"
 #include "llvm/CodeGen/TargetPassConfig.h"
@@ -71,6 +72,11 @@ XtensaTargetMachine::getSubtargetImpl(const Function &F) const {
   return &Subtarget;
 }
 
+TargetTransformInfo
+XtensaTargetMachine::getTargetTransformInfo(const Function &F) {
+  return TargetTransformInfo(XtensaTTIImpl(this, F));
+}
+
 namespace {
 /// Xtensa Code Generator Pass Configuration Options.
 class XtensaPassConfig : public TargetPassConfig {
@@ -83,10 +89,20 @@ public:
   }
 
   void addIRPasses() override;
+  bool addPreISel() override;
   bool addInstSelector() override;
+  void addPreRegAlloc() override;
   void addPreEmitPass() override;
 };
 } // end anonymous namespace
+
+bool XtensaPassConfig::addPreISel() {
+  if (TM->getOptLevel() != CodeGenOpt::None) {
+    addPass(createHardwareLoopsPass());
+  }
+
+  return false;
+}
 
 bool XtensaPassConfig::addInstSelector() {
   addPass(createXtensaISelDag(getXtensaTargetMachine(), getOptLevel()));
@@ -95,11 +111,17 @@ bool XtensaPassConfig::addInstSelector() {
 
 void XtensaPassConfig::addIRPasses() { addPass(createAtomicExpandPass()); }
 
+void XtensaPassConfig::addPreRegAlloc() {
+  addPass(createXtensaHardwareLoops());
+}
+
 void XtensaPassConfig::addPreEmitPass() {
   addPass(createXtensaSizeReductionPass());
   addPass(&BranchRelaxationPassID);
+  addPass(createXtensaFixupHwLoops());
 }
 
 TargetPassConfig *XtensaTargetMachine::createPassConfig(PassManagerBase &PM) {
   return new XtensaPassConfig(*this, PM);
 }
+

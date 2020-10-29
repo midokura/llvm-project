@@ -50,7 +50,7 @@ def Imm64n_4n_AsmOperand: ImmAsmOperand<"Imm64n_4n">;
 def imm64n_4n: Immediate<i32, [{ return Imm >= -64 && Imm <= -4; }], "Imm64n_4n_AsmOperand"> {
   let EncoderMethod = "getImm64n_4nOpValue";
   let DecoderMethod = "decodeImm64n_4nOperand";
-} 
+}
 
 // imm12 predicate - Immediate in the range [-2048,2047]
 def Imm12_AsmOperand: ImmAsmOperand<"Imm12">;
@@ -246,6 +246,14 @@ def jumptarget: Operand<OtherVT>
   let PrintMethod = "printJumpTarget";
   let EncoderMethod = "getJumpTargetEncoding";
   let DecoderMethod = "decodeJumpOperand";
+  let ParserMatchClass = XtensaPCRelTargetAsmOperand;
+}
+
+def ltarget : Operand<OtherVT>
+{
+  let PrintMethod = "printLoopTarget";
+  let EncoderMethod = "getLoopTargetEncoding";
+  let DecoderMethod = "decodeLoopOperand";
   let ParserMatchClass = XtensaPCRelTargetAsmOperand;
 }
 
