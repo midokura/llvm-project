@@ -1140,12 +1140,12 @@ let isCompare = 1, Predicates = [HasSingleFloat] in
 }
 
 def OEQ_S:  FCompare<0x02, 0x0b, "oeq.s", Xtensa_cmpoeq, 1>;
-def OLT_S:  FCompare<0x04, 0x0b, "olt.s", Xtensa_cmpolt, 1>;
-def OLE_S:  FCompare<0x06, 0x0b, "ole.s", Xtensa_cmpole, 1>;
+def OLT_S:  FCompare<0x04, 0x0b, "olt.s", Xtensa_cmpolt, 0>;
+def OLE_S:  FCompare<0x06, 0x0b, "ole.s", Xtensa_cmpole, 0>;
 
 def UEQ_S:  FCompare<0x03, 0x0b, "ueq.s", Xtensa_cmpueq, 1>;
-def ULT_S:  FCompare<0x05, 0x0b, "ult.s", Xtensa_cmpult, 1>;
-def ULE_S:  FCompare<0x07, 0x0b, "ule.s", Xtensa_cmpule, 1>;
+def ULT_S:  FCompare<0x05, 0x0b, "ult.s", Xtensa_cmpult, 0>;
+def ULE_S:  FCompare<0x07, 0x0b, "ule.s", Xtensa_cmpule, 0>;
 def UN_S:   FCompare<0x01, 0x0b, "un.s",  Xtensa_cmpuo, 1>;
 
 def ABS_S: RRR_Inst<0x00, 0x0A, 0x0F, (outs FPR:$r), (ins FPR:$s),
