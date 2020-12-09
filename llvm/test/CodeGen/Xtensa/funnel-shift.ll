@@ -11,7 +11,6 @@ entry:
 
 define dso_local i32 @test_fshl(i32 %value, i32 %shift) nounwind {
 ; CHECK-LABEL: @test_fshl
-; CHECK: mov.n a8, a1
 ; CHECK: movi.n a8, 32
 ; CHECK: sub a8, a8, a3
 ; CHECK: ssr a8
