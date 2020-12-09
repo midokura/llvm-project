@@ -60,6 +60,7 @@ before_script:
 .build_clang_wrappers: &build_clang_wrappers |
   git clone ${GITLAB_SSH_SERVER}/${XTENSA_CLANG_TOOLCHAIN_REPO}
   cd xtensa-clang-toolchain
+  git checkout release_esp32_clang_11.0.0_gcc_8.2.0
   make build_clang_wrap
   cd ..
 
