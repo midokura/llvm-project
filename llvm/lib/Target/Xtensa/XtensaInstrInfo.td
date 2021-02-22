@@ -551,20 +551,17 @@ let isCall = 1, Defs = [A0] in
     let n = 0;
   }
 
-  let isIndirectBranch = 1 in
+  def CALLX0: CALLX_Inst<0x00, 0x00, 0x00, (outs), (ins AR:$s),
+                        "callx0\t$s", [(Xtensa_call AR:$s)]>
   {
-    def CALLX0: CALLX_Inst<0x00, 0x00, 0x00, (outs), (ins AR:$s),
-                          "callx0\t$s", [(Xtensa_call AR:$s)]>
-    {
-      let m = 0x3;
-      let n = 0x0;
-      let r = 0;
-    }
+    let m = 0x3;
+    let n = 0x0;
+    let r = 0;
   }
 }
 
 let isReturn = 1, isTerminator = 1,
-    isBarrier = 1, hasCtrlDep = 1, Uses = [A0] in
+    isBarrier = 1, Uses = [A0] in
 {
 
   def RET: CALLX_Inst<0x00, 0x00, 0x00, (outs), (ins),
@@ -803,7 +800,7 @@ let mayStore = 1, usesCustomInserter = 1 in
 
 //Return instruction
 let isReturn = 1, isTerminator = 1,
-    isBarrier = 1, hasCtrlDep = 1, Uses = [A0] in
+    isBarrier = 1, Uses = [A0] in
 {
   def RET_N: RRRN_Inst<0x0D, (outs), (ins),
                 "ret.n", [(Xtensa_retflag)]>, Requires<[HasDensity]>
@@ -848,31 +845,28 @@ let isCall = 1, Defs = [A0] in
     let n = 3;
   }
 
-  let isIndirectBranch = 1 in
+  def CALLX4: CALLX_Inst<0x00, 0x00, 0x00, (outs), (ins AR:$s),
+                        "callx4\t$s", []>, Requires<[HasWindowed]>
   {
-    def CALLX4: CALLX_Inst<0x00, 0x00, 0x00, (outs), (ins AR:$s), 
-                          "callx4\t$s", []>, Requires<[HasWindowed]>
-    {
-      let m = 0x3;
-      let n = 0x1;
-      let r = 0;
-    }
+    let m = 0x3;
+    let n = 0x1;
+    let r = 0;
+  }
 
-    def CALLX8: CALLX_Inst<0x00, 0x00, 0x00, (outs), (ins AR:$s), 
-                          "callx8\t$s", []>, Requires<[HasWindowed]>
-    {
-      let m = 0x3;
-      let n = 0x2;
-      let r = 0;
-    }
+  def CALLX8: CALLX_Inst<0x00, 0x00, 0x00, (outs), (ins AR:$s),
+                        "callx8\t$s", []>, Requires<[HasWindowed]>
+  {
+    let m = 0x3;
+    let n = 0x2;
+    let r = 0;
+  }
 
-    def CALLX12: CALLX_Inst<0x00, 0x00, 0x00, (outs), (ins AR:$s), 
-                           "callx12\t$s", []>, Requires<[HasWindowed]>
-    {
-      let m = 0x3;
-      let n = 0x3;
-      let r = 0;
-    }
+  def CALLX12: CALLX_Inst<0x00, 0x00, 0x00, (outs), (ins AR:$s),
+                         "callx12\t$s", []>, Requires<[HasWindowed]>
+  {
+    let m = 0x3;
+    let n = 0x3;
+    let r = 0;
   }
 }
 
@@ -893,7 +887,7 @@ def MOVSP: RRR_Inst<0x00, 0x00, 0x00, (outs AR:$t), (ins AR:$s),
 
 //Return instructions
 let isReturn = 1, isTerminator = 1,
-    isBarrier = 1, hasCtrlDep = 1, Uses = [A0] in
+    isBarrier = 1, Uses = [A0] in
 {
   def RETW_N: RRRN_Inst<0x0D, (outs), (ins),
                 "retw.n", [(Xtensa_retWflag)]>, Requires<[HasWindowed, HasDensity]>
@@ -903,7 +897,7 @@ let isReturn = 1, isTerminator = 1,
     let t = 1;
   }
 
-  def RETW: CALLX_Inst<0x00, 0x00, 0x00, (outs), (ins), 
+  def RETW: CALLX_Inst<0x00, 0x00, 0x00, (outs), (ins),
             "retw", [(Xtensa_retWflag)]>, Requires<[HasWindowed]>
   {
     let m = 0x2;
