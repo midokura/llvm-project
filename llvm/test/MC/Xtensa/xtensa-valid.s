@@ -49,6 +49,9 @@ LBL0:
 # CHECK-INST:  bbci    a3, 16, LBL0
 # CHECK: encoding: [0x07,0x73,A]
  bbci a3, 16, LBL0
+# CHECK-INST:  bbci    a3, 16, LBL0
+# CHECK: encoding: [0x07,0x73,A]
+ bbci a3, (16), LBL0
 # CHECK-INST:  bbs     a12, a5, LBL0
 # CHECK: encoding: [0x57,0xdc,A]
  bbs a12, a5, LBL0
