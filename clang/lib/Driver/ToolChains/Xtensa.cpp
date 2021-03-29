@@ -235,17 +235,20 @@ void Xtensa::Linker::ConstructJob(Compilation &C, const JobAction &JA,
                                   const char *LinkingOutput) const {
   const auto &TC =
       static_cast<const toolchains::XtensaToolChain &>(getToolChain());
-  
-  if (!TC.XtensaGCCToolchain.IsValid())
-    llvm_unreachable("Unable to find Xtensa GCC linker");
-
+  std::string Slash = TC.XtensaGCCToolchain.Slash;
   std::string LibDir = "";
+
   if ((Args.getLastArg(options::OPT_mfix_esp32_psram_cache_issue) != nullptr) ||
-      (Args.getLastArg(options::OPT_malways_memw) != nullptr)) { 
-    LibDir = "esp32-psram";
+      (Args.getLastArg(options::OPT_malways_memw) != nullptr)) {
+    LibDir = "esp32-psram" + Slash;
   }
 
-  std::string Slash = TC.XtensaGCCToolchain.Slash;
+  if ((Args.getLastArg(options::OPT_fno_rtti) != nullptr)) {
+    LibDir += "no-rtti" + Slash;
+  }
+
+  if (!TC.XtensaGCCToolchain.IsValid())
+    llvm_unreachable("Unable to find Xtensa GCC linker");
 
   std::string Linker = getToolChain().getDriver().Dir + Slash +
                        TC.XtensaGCCToolchain.GCCToolchainName + "-ld";
@@ -257,26 +260,25 @@ void Xtensa::Linker::ConstructJob(Compilation &C, const JobAction &JA,
 
   AddLinkerInputs(getToolChain(), Inputs, Args, CmdArgs, JA);
 
-  std::string Libs =
-      TC.XtensaGCCToolchain.GCCToolchainDir + Slash + "lib" + Slash + "gcc" +
-      Slash + TC.XtensaGCCToolchain.GCCToolchainName + Slash +
-      TC.XtensaGCCToolchain.GCCLibAndIncVersion + Slash + LibDir + Slash;
+  std::string Libs = TC.XtensaGCCToolchain.GCCToolchainDir + Slash + "lib" +
+                     Slash + "gcc" + Slash +
+                     TC.XtensaGCCToolchain.GCCToolchainName + Slash +
+                     TC.XtensaGCCToolchain.GCCLibAndIncVersion + Slash + LibDir;
   CmdArgs.push_back("-L");
   CmdArgs.push_back(Args.MakeArgString(Libs));
 
   Libs = TC.XtensaGCCToolchain.GCCToolchainDir + Slash +
          TC.XtensaGCCToolchain.GCCToolchainName + Slash + "lib" + Slash +
-         LibDir + Slash;
+         LibDir;
   CmdArgs.push_back("-L");
   CmdArgs.push_back(Args.MakeArgString(Libs));
 
-  CmdArgs.push_back("-v");
+  CmdArgs.push_back("-lgcc");
 
   CmdArgs.push_back("-o");
   CmdArgs.push_back(Output.getFilename());
   C.addCommand(
       std::make_unique<Command>(JA, *this, ResponseFileSupport::AtFileCurCP(),
-                                Args.MakeArgString(Linker),
-                                         CmdArgs, Inputs));
+                                Args.MakeArgString(Linker), CmdArgs, Inputs));
 }
 
