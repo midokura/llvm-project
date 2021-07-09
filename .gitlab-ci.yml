@@ -13,16 +13,16 @@ variables:
   PLATFORM_NAME_LINUX: "linux-amd64"
   PLATFORM_NAME_WIN: "win64"
 
-  XTENSA_CLANG_TOOLCHAIN_BRANCH: "esp-20210520-r11.0.0"
-  GCC_REL_TAG: "gcc8_4_0-esp-2020r3"
-  XTENSA_GCC_TOOLCHAIN_LINUX_TAR_GZ: "xtensa-esp32-elf-${GCC_REL_TAG}-linux-amd64.tar.gz"
-  XTENSA_GCC_TOOLCHAIN_WIN_ZIP: "xtensa-esp32-elf-${GCC_REL_TAG}-win64.zip"
+  XTENSA_CLANG_TOOLCHAIN_BRANCH: "esp-20210702-r11.0.0"
+  GCC_REL_NAME: "gcc8_4_0-esp-2021r1"
+  XTENSA_GCC_TOOLCHAIN_LINUX_TAR_GZ: "xtensa-esp32-elf-${GCC_REL_NAME}-linux-amd64.tar.gz"
+  XTENSA_GCC_TOOLCHAIN_WIN_ZIP: "xtensa-esp32-elf-${GCC_REL_NAME}-win64.zip"
 
   ARCHIVE_TOOL_LINUX: "tar cJf"
   UNARCHIVE_TOOL_LINUX: "tar xf"
   ARCHIVE_EXT_LINUX: "tar.xz"
 
-  ARCHIVE_TOOL_WIN: "zip -r"
+  ARCHIVE_TOOL_WIN: "zip -9 -r"
   UNARCHIVE_TOOL_WIN: "unzip"
   ARCHIVE_EXT_WIN: "zip"
 
