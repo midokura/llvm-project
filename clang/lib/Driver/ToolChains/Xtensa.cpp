@@ -128,21 +128,13 @@ void XtensaToolChain::AddClangSystemIncludeArgs(const ArgList &DriverArgs,
   std::string Slash = XtensaGCCToolchain.Slash;
 
   std::string Path1 = getDriver().ResourceDir.c_str() + Slash + "include";
-  std::string Path2 =
-      XtensaGCCToolchain.GCCToolchainDir + Slash + "lib" + Slash + "gcc" +
-      Slash + XtensaGCCToolchain.GCCToolchainName + Slash +
-      XtensaGCCToolchain.GCCLibAndIncVersion + Slash + "include";
-  std::string Path3 =
-      XtensaGCCToolchain.GCCToolchainDir + Slash + "lib" + Slash + "gcc" +
-      Slash + XtensaGCCToolchain.GCCToolchainName + Slash +
-      XtensaGCCToolchain.GCCLibAndIncVersion + Slash + "include-fixed";
-  std::string Path4 = XtensaGCCToolchain.GCCToolchainDir + Slash +
+  std::string Path2 = XtensaGCCToolchain.GCCToolchainDir + Slash +
                       XtensaGCCToolchain.GCCToolchainName + Slash +
                       "sys-include";
-  std::string Path5 = XtensaGCCToolchain.GCCToolchainDir + Slash +
+  std::string Path3 = XtensaGCCToolchain.GCCToolchainDir + Slash +
                       XtensaGCCToolchain.GCCToolchainName + Slash + "include";
 
-  const StringRef Paths[] = {Path1, Path2, Path3, Path4, Path5};
+  const StringRef Paths[] = {Path1, Path2, Path3};
   addSystemIncludes(DriverArgs, CC1Args, Paths);
 }
 
