@@ -106,10 +106,12 @@ void XtensaFrameLowering::emitPrologue(MachineFunction &MF,
   uint64_t StackSize = MFI.getStackSize();
   uint64_t PrevStackSize = StackSize;
 
+  // Round up StackSize to 16*N
+  StackSize += (16 - StackSize) & 0xf;
+
   if (STI.isWinABI()) {
     StackSize += 32;
-    // Round up StackSize to 8*N
-    StackSize += (8 - StackSize) & 0x7;
+
     if (StackSize <= 32760) {
       BuildMI(MBB, MBBI, dl, TII.get(Xtensa::ENTRY))
           .addReg(SP)
