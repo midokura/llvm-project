@@ -1291,7 +1291,8 @@ let isTerminator = 1, isBarrier = 1, hasSideEffects = 1, Size = 9 in {
                         "!loopstart $s, $target", []>;
 }
 
-let isBranch = 1, isTerminator = 1, isBarrier = 1, isIndirectBranch = 0, Size = 3 in {
+// LOOPEND pseudo instruction reserves 6 bytes for Jump and NOP operations.
+let isBranch = 1, isTerminator = 1, isBarrier = 1, isIndirectBranch = 0, Size = 6 in {
   def LOOPEND : Pseudo<(outs), (ins brtarget:$target),
                       "!loopend $target", [(Xtensa_loopend bb:$target)]>;
 }
