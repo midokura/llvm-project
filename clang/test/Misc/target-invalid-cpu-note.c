@@ -205,3 +205,7 @@
 // RUN: not %clang_cc1 -triple riscv64 -tune-cpu not-a-cpu -fsyntax-only %s 2>&1 | FileCheck %s --check-prefix TUNE-RISCV64
 // TUNE-RISCV64: error: unknown target CPU 'not-a-cpu'
 // TUNE-RISCV64: note: valid target CPU values are: generic-rv64, rocket-rv64, sifive-7-rv64, sifive-u54, sifive-u74, generic, rocket, sifive-7-series
+
+// RUN: not %clang_cc1 -triple xtensa -tune-cpu not-a-cpu -fsyntax-only %s 2>&1 | FileCheck %s --check-prefix TUNE-XTENSA
+// TUNE-XTENSA: error: unknown target CPU 'not-a-cpu'
+// TUNE-XTENSA: note: valid target CPU values are: generic, esp8266, esp32, esp32s2, esp32-s2, esp32s3, esp32-s3
