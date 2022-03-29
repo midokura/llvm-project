@@ -1591,6 +1591,7 @@ static void findRISCVBareMetalMultilibs(const Driver &D,
       {"rv64imafdc", "lp64d"}};
 
   std::vector<Multilib> Ms;
+  Ms.emplace_back(Multilib({}, {}, {}, -1));
   for (auto Element : RISCVMultilibSet) {
     // multilib path rule is ${march}/${mabi}
     Ms.emplace_back(
