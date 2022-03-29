@@ -22,7 +22,6 @@ public:
                  const llvm::opt::ArgList &Args);
 
   static bool hasGCCToolchain(const Driver &D, const llvm::opt::ArgList &Args);
-  bool IsIntegratedAssemblerDefault() const override { return true; }
   void addClangTargetOptions(const llvm::opt::ArgList &DriverArgs,
                              llvm::opt::ArgStringList &CC1Args,
                              Action::OffloadKind) const override;
@@ -35,6 +34,12 @@ public:
   void
   addLibStdCxxIncludePaths(const llvm::opt::ArgList &DriverArgs,
                            llvm::opt::ArgStringList &CC1Args) const override;
+
+  bool IsIntegratedAssemblerDefault() const override {
+    if (GCCInstallation.getTriple().getVendor() == llvm::Triple::Espressif)
+      return false;
+    return Generic_ELF::IsIntegratedAssemblerDefault();
+  }
 
 protected:
   Tool *buildLinker() const override;
@@ -57,6 +62,7 @@ public:
                     const llvm::opt::ArgList &TCArgs,
                     const char *LinkingOutput) const override;
 };
+
 } // end namespace RISCV
 } // end namespace tools
 
