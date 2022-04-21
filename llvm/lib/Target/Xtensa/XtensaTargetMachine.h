@@ -16,6 +16,7 @@
 #define LLVM_LIB_TARGET_XTENSA_XTENSATARGETMACHINE_H
 
 #include "XtensaSubtarget.h"
+#include "llvm/Analysis/TargetTransformInfo.h"
 #include "llvm/Target/TargetMachine.h"
 
 namespace llvm {
@@ -38,6 +39,8 @@ public:
                       Optional<Reloc::Model> RM, Optional<CodeModel::Model> CM,
                       CodeGenOpt::Level OL, bool JIT);
 
+  TargetTransformInfo getTargetTransformInfo(const Function &F) const override;
+
   // Override TargetMachine.
   const XtensaSubtarget *getSubtargetImpl() const { return &Subtarget; }
   const XtensaSubtarget *getSubtargetImpl(const Function &F) const override;
@@ -53,3 +56,4 @@ protected:
 } // end namespace llvm
 
 #endif /* LLVM_LIB_TARGET_XTENSA_XTENSATARGETMACHINE_H */
+
