@@ -18,7 +18,7 @@ variables:
   XTENSA_OVERLAYS_REPO: "xtensa-overlays"
   XTENSA_OVERLAYS_REF: "master"
   # TODO: update vars below to tags names after related branches are merged in those repos
-  XTENSA_CLANG_TOOLCHAIN_REF: "build_macos"
+  XTENSA_CLANG_TOOLCHAIN_REF: "build_macos_arm64"
   LLVM_GCC_TESTSUITE_REF: "feature/toolchain_build_script"
 
   PLATFORM_NAME_LINUX_ARM64: "linux-arm64"
@@ -142,7 +142,7 @@ before_script:
     # build Clang toolchain w/o newlib
     - ${BUILD_TOOLCHAIN_CMD} --llvm-path=${LLVM_PROJECT_PATH}
       --gcc-toolchains-path=${ESP_GCC_TOOLCHAIN_DIST_BASE} --binutils-path=${BINUTILS_PATH}
-      --xtensa-overlays-path=${XTENSA_OVERLAYS_PATH} ${BUILD_TOOLCHAIN_CMD_ARGS} ${BUILD_PATH} 2>&1 > ${BUILD_PATH}/clang_build.log
+      --xtensa-overlays-path=${XTENSA_OVERLAYS_PATH} --host=${CONF_HOST} ${BUILD_TOOLCHAIN_CMD_ARGS} ${BUILD_PATH} 2>&1 > ${BUILD_PATH}/clang_build.log
     # use just built Clang to build newlib
     - export PATH=${BUILD_PATH}/esp-clang/bin:$PATH
     - export BUILD_HOST=$(gcc -dumpmachine)
@@ -165,7 +165,7 @@ before_script:
       fi
     - ${UNARCHIVE_TOOL_LINUX} ${NEWLIB_OVERLAY_DISTRO_PATH}/esp-clang-newlib-overlay.${ARCHIVE_EXT_LINUX} -C ${BUILD_PATH}
     # strip binutils afer newlib is built
-    - STRIP_BINUTILS=YES ${BUILD_TOOLCHAIN_CMD} ${BUILD_TOOLCHAIN_CMD_ARGS} ${BUILD_PATH}
+    - STRIP_BINUTILS=YES ./build-toolchain.sh --host=${CONF_HOST} ${BUILD_PATH}
     # Run unit tests for native build only.
     # Run as non-root user because permission tests fail when run by root.
     - if [ "${CONF_HOST}" == "${BUILD_HOST}" ]; then
@@ -215,7 +215,7 @@ build_x86_64-linux-gnu:
     - rm -rf ${DIST_DIR}
     - rm -rf ${BUILD_DIR}
     # add build command args speciifc for Windows build
-    - export BUILD_TOOLCHAIN_CMD_ARGS="--host=${CONF_HOST} --native-esp-clang-path=$PWD/esp-clang-${PLATFORM_NAME_LINUX}"
+    - export BUILD_TOOLCHAIN_CMD_ARGS="--native-esp-clang-path=$PWD/esp-clang-${PLATFORM_NAME_LINUX}"
   variables:
     CONF_HOST: "x86_64-w64-mingw32"
     PLATFORM_NAME: "${PLATFORM_NAME_WIN}"
@@ -224,19 +224,28 @@ build_x86_64-linux-gnu:
     ARCHIVE_EXT: "${ARCHIVE_EXT_WIN}"
     BUILD_TOOLCHAIN_CMD: "./build-toolchain-win.sh"
 
-build_x86_64-apple-darwin:
+.build_apple-darwin_template:
   extends: .build_template
   needs:
     - job: build_x86_64-linux-gnu
   variables:
-    CONF_HOST: "x86_64-apple-darwin21.1"
     PLATFORM_NAME: "${PLATFORM_NAME_MACOS}"
     ARCHIVE_TOOL: "${ARCHIVE_TOOL_MACOS}"
     UNARCHIVE_TOOL: "${UNARCHIVE_TOOL_MACOS}"
     ARCHIVE_EXT: "${ARCHIVE_EXT_MACOS}"
     GCC_ARCHIVE_EXT: "${GCC_ARCHIVE_EXT_MACOS}"
-    BUILD_TOOLCHAIN_CMD: "./build-toolchain-macos.sh"
-    BUILD_TOOLCHAIN_CMD_ARGS: "--host=${CONF_HOST}"
+
+build_x86_64-apple-darwin:
+  extends: .build_apple-darwin_template
+  variables:
+    CONF_HOST: "x86_64-apple-darwin21.1"
+    BUILD_TOOLCHAIN_CMD: "./build-toolchain-macos.sh --host-arch=x86_64"
+
+build_aarch64-apple-darwin:
+  extends: .build_apple-darwin_template
+  variables:
+    CONF_HOST: "aarch64-apple-darwin21.1"
+    BUILD_TOOLCHAIN_CMD: "./build-toolchain-macos.sh --host-arch=aarch64"
 
 .test_x86_64-linux-gnu:
   stage: test
