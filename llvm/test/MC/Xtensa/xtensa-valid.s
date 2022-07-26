@@ -21,6 +21,16 @@ addi a8, sp, -128
 # CHECK-INST:  addi a8, a1,  -12
 # CHECK: encoding: [0x82,0xc1,0xf4]
 addi a8, a1,  -12
+# CHECK-INST:  addmi a8, a1,  256
+# CHECK: encoding: [0x82,0xd1,0x01]
+# CHECK-INST:  addi a8, a8,  0
+# CHECK: encoding: [0x82,0xc8,0x00]
+addi a8, a1,  256
+# CHECK-INST:  addmi a8, a1, -9984
+# CHECK: encoding: [0x82,0xd1,0xd9]
+# CHECK-INST:  addi a8, a8,  -16
+# CHECK: encoding: [0x82,0xc8,0xf0]
+addi a8, a1, -10000
 
 # CHECK-INST:  addmi a1, a2, 32512
 # CHECK: encoding: [0x12,0xd2,0x7f]
@@ -326,6 +336,9 @@ wsr.sar a8
 # CHECK-INST: wsr     a8, sar
 # CHECK: encoding: [0x80,0x03,0x13]
 wsr a8, 3
+# CHECK-INST: wsr     a8, sar
+# CHECK: encoding: [0x80,0x03,0x13]
+wsr a8, (2 + 1)
 
 # CHECK-INST: xor     a6, a4, a5
 # CHECK: encoding: [0x50,0x64,0x30]

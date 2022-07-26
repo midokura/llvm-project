@@ -5,12 +5,12 @@
 LBL0:
 
 # imm8
-addi a1, a2, 300
-# CHECK:      error: expected immediate in range [-128, 127]
+addi a1, a2, -33000
+# CHECK:      error: expected immediate in range [-32896, 32639]
 
 # imm8
-addi a1, a2, -129
-# CHECK:      error: expected immediate in range [-128, 127]
+addi a1, a2, 34000
+# CHECK:      error: expected immediate in range [-32896, 32639]
 
 # imm1_16
 extui  a1, a2, 5, 17
@@ -70,4 +70,4 @@ or r2, sp, a3 # CHECK: :[[@LINE]]:4: error: invalid operand for instruction
 
 # Invalid operand types
 and sp, a2, 10 # CHECK: :[[@LINE]]:13: error: invalid operand for instruction
-addi sp, a1, a2 # CHECK: :[[@LINE]]:14: error: expected immediate in range [-128, 127]
+addi sp, a1, a2 # CHECK: :[[@LINE]]:14: error: expected immediate in range [-32896, 32639]
