@@ -1005,6 +1005,10 @@ static Multilib makeMultilib(StringRef commonSuffix) {
   return Multilib(commonSuffix, commonSuffix, commonSuffix);
 }
 
+static Multilib makeMultilib(StringRef commonSuffix, int Priority) {
+  return Multilib(commonSuffix, commonSuffix, commonSuffix, Priority);
+}
+
 static bool findMipsCsMultilibs(const Multilib::flags_list &Flags,
                                 FilterNonExistent &NonExistent,
                                 DetectedMultilibs &Result) {
@@ -1592,13 +1596,23 @@ static void findRISCVBareMetalMultilibs(const Driver &D,
       {"rv64imafdc", "lp64d"}};
 
   std::vector<Multilib> Ms;
-  Ms.emplace_back(Multilib({}, {}, {}, -1));
+  Ms.emplace_back(Multilib());
+  Ms.emplace_back(makeMultilib("no-rtti", 1)
+                  .flag("+fno-rtti")
+                  .flag("-frtti"));
   for (auto Element : RISCVMultilibSet) {
     // multilib path rule is ${march}/${mabi}
     Ms.emplace_back(
-        makeMultilib((Twine(Element.march) + "/" + Twine(Element.mabi)).str())
+        makeMultilib((Twine(Element.march) + "/" + Twine(Element.mabi)).str(), 2)
             .flag(Twine("+march=", Element.march).str())
             .flag(Twine("+mabi=", Element.mabi).str()));
+    /* no-rtti version for every ${march}/${mabi} */
+    Ms.emplace_back(
+        makeMultilib((Twine(Element.march) + "/" + Twine(Element.mabi) + "/no-rtti").str(), 3)
+            .flag(Twine("+march=", Element.march).str())
+            .flag(Twine("+mabi=", Element.mabi).str())
+            .flag("+fno-rtti")
+            .flag("-frtti"));
   }
   MultilibSet RISCVMultilibs =
       MultilibSet()
@@ -1634,6 +1648,10 @@ static void findRISCVBareMetalMultilibs(const Driver &D,
                       Twine("mabi=", Element.mabi).str().c_str(), Flags);
     }
   }
+
+  addMultilibFlag(
+      Args.hasFlag(options::OPT_frtti, options::OPT_fno_rtti, true), "frtti",
+      Flags);
 
   if (RISCVMultilibs.select(Flags, Result.SelectedMultilib))
     Result.Multilibs = RISCVMultilibs;
