@@ -155,6 +155,8 @@ void XtensaAsmPrinter::emitConstantPool() {
 
         OutStreamer->emitRawText(StringRef(str));
       } else {
+        OutStreamer->emitCodeAlignment(
+            4, OutStreamer->getContext().getSubtargetInfo());
         OutStreamer->emitLabel(LblSym);
         emitGlobalConstant(getDataLayout(), CPE.Val.ConstVal);
       }
