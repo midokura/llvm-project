@@ -14,6 +14,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "XtensaAsmPrinter.h"
+#include "XtensaSubtarget.h"
 #include "MCTargetDesc/XtensaInstPrinter.h"
 #include "XtensaConstantPoolValue.h"
 #include "XtensaMCInstLower.h"
@@ -68,6 +69,8 @@ void XtensaAsmPrinter::emitConstantPool() {
   const Function &F = MF->getFunction();
   const MachineConstantPool *MCP = MF->getConstantPool();
   const std::vector<MachineConstantPoolEntry> &CP = MCP->getConstants();
+  const XtensaSubtarget *Subtarget = &MF->getSubtarget<XtensaSubtarget>();
+
   if (CP.empty())
     return;
 
@@ -97,6 +100,8 @@ void XtensaAsmPrinter::emitConstantPool() {
           SectionName += ".literal";
         }
 
+        if (Subtarget->useTextSectionLiterals())
+          SectionName = CSectionName;
         MCSectionELF *S =
             OutContext.getELFSection(SectionName, ELF::SHT_PROGBITS,
                                      ELF::SHF_EXECINSTR | ELF::SHF_ALLOC);
@@ -150,6 +155,8 @@ void XtensaAsmPrinter::emitConstantPool() {
 
         OutStreamer->emitRawText(StringRef(str));
       } else {
+        OutStreamer->emitCodeAlignment(
+            4, OutStreamer->getContext().getSubtargetInfo());
         OutStreamer->emitLabel(LblSym);
         emitGlobalConstant(getDataLayout(), CPE.Val.ConstVal);
       }
@@ -213,6 +220,8 @@ void XtensaAsmPrinter::emitMachineConstantPoolValue(
 
     const MCExpr *Expr = MCSymbolRefExpr::create(MCSym, VK, OutContext);
     uint64_t Size = getDataLayout().getTypeAllocSize(ACPV->getType());
+    OutStreamer->emitCodeAlignment(
+        4, OutStreamer->getContext().getSubtargetInfo());
     OutStreamer->emitLabel(LblSym);
     OutStreamer->emitValue(Expr, Size);
   }

@@ -24,6 +24,19 @@
 
 using namespace llvm;
 
+enum PSRAMFixChoice {
+  ESP32_PSRAM_FIX_MEMW,
+  ESP32_PSRAM_FIX_NOPS
+};
+
+static cl::opt<bool> TextSectionLiterals("text-section-literals",
+                                             cl::init(false), cl::Hidden);
+
+bool XtensaSubtarget::useTextSectionLiterals() const
+{
+  return TextSectionLiterals;
+}
+
 XtensaSubtarget &
 XtensaSubtarget::initializeSubtargetDependencies(StringRef CPU, StringRef FS) {
   StringRef CPUName = CPU;
