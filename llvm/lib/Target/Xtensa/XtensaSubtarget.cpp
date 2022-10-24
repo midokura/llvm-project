@@ -30,7 +30,7 @@ enum PSRAMFixChoice {
 };
 
 static cl::opt<bool> TextSectionLiterals("text-section-literals",
-                                             cl::init(false), cl::Hidden);
+                                             cl::init(true), cl::Hidden);
 
 bool XtensaSubtarget::useTextSectionLiterals() const
 {
