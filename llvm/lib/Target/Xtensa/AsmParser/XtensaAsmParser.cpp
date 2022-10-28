@@ -544,11 +544,6 @@ bool XtensaAsmParser::processInstruction(MCInst &Inst, SMLoc IDLoc,
   case Xtensa::MOVI: {
     XtensaTargetStreamer &TS = this->getTargetStreamer();
 
-    //In the case of asm output, simply pass the representation of
-    //the MOVI instruction as is
-    if (TS.getStreamer().hasRawTextSupport())
-      break;
-
     //Expand MOVI operand
     if (!Inst.getOperand(1).isExpr()) {
       uint64_t ImmOp64 = Inst.getOperand(1).getImm();

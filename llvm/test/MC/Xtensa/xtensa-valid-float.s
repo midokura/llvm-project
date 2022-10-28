@@ -4,6 +4,7 @@
 .align	4
 LBL0:
 
+# Instruction format RRR
 # CHECK-INST: abs.s	f2, f3
 # CHECK: encoding: [0x10,0x23,0xfa]
 	abs.s	f2, f3
@@ -145,10 +146,10 @@ LBL0:
 # CHECK-INST: sub.s	f2, f3, f4
 # CHECK: encoding: [0x40,0x23,0x1a]
 	sub.s	f2, f3, f4
-	
+
 # CHECK-INST: trunc.s a2, f3, 5
 # CHECK: encoding: [0x50,0x23,0x9a]
-	trunc.s	a2, f3, 5	
+	trunc.s	a2, f3, 5
 
 # CHECK-INST: ueq.s b0, f2, f3
 # CHECK: encoding: [0x30,0x02,0x3b]
@@ -170,7 +171,7 @@ LBL0:
 
 # CHECK-INST: utrunc.s a2, f3, 5
 # CHECK: encoding: [0x50,0x23,0xea]
-	utrunc.s	a2, f3, 5	
+	utrunc.s	a2, f3, 5
 
 # CHECK-INST: wfr f2, a3
 # CHECK: encoding: [0x50,0x23,0xfa]

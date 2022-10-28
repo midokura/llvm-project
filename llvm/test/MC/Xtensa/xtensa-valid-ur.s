@@ -4,6 +4,7 @@
 .align	4
 LBL0:
 
+# Instruction format RSR
 # CHECK-INST: rur     a3, threadptr
 # CHECK: encoding: [0x70,0x3e,0xe3]
  rur a3, threadptr

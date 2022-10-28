@@ -1,15 +1,15 @@
 # RUN: not llvm-mc  -triple xtensa < %s 2>&1 | FileCheck %s
 
-# Out of range immediates
-
 LBL0:
 
+# Out of range immediates
+
 # imm8
-addi a1, a2, -33000
+addi a1, a2, 33000
 # CHECK:      error: expected immediate in range [-32896, 32639]
 
 # imm8
-addi a1, a2, 34000
+addi a1, a2, -33000
 # CHECK:      error: expected immediate in range [-32896, 32639]
 
 # imm1_16
@@ -63,11 +63,36 @@ addi a1, a2, 4, 4 # CHECK: :[[@LINE]]:17: error: invalid operand for instruction
 # Invalid mnemonics
 aaa a10, a12 # CHECK: :[[@LINE]]:1: error: unrecognized instruction mnemonic
 
-# Invalid register names
-addi a101, sp, 10 # CHECK: :[[@LINE]]:6: error: invalid operand for instruction
-wsr.uregister a2 # CHECK: :[[@LINE]]:1: error: invalid register name
-or r2, sp, a3 # CHECK: :[[@LINE]]:4: error: invalid operand for instruction
-
 # Invalid operand types
 and sp, a2, 10 # CHECK: :[[@LINE]]:13: error: invalid operand for instruction
 addi sp, a1, a2 # CHECK: :[[@LINE]]:14: error: expected immediate in range [-32896, 32639]
+
+# Check invalid register names for different formats
+# Instruction format RRR
+or r2, sp, a3 # CHECK: :[[@LINE]]:4: error: invalid operand for instruction
+and a1, r10, a3 # CHECK: :[[@LINE]]:9: error: invalid operand for instruction
+sub a1, sp, a100 # CHECK: :[[@LINE]]:13: error: invalid operand for instruction
+# Instruction format RRI8
+addi a101, sp, 10 # CHECK: :[[@LINE]]:6: error: invalid operand for instruction
+addi a1, r10, 10 # CHECK: :[[@LINE]]:10: error: invalid operand for instruction
+# Instruction format RSR
+wsr.uregister a2 # CHECK: :[[@LINE]]:1: error: invalid register name
+wsr a2, uregister # CHECK: :[[@LINE]]:9: error: invalid operand for instruction
+# Instruction format BRI12
+beqz b1, LBL0 # CHECK: :[[@LINE]]:6: error: invalid operand for instruction
+# Instruction format BRI8
+bltui r7, 16, LBL0 # CHECK: :[[@LINE]]:7: error: invalid operand for instruction
+# Instruction format CALLX
+callx0 r10 # CHECK: :[[@LINE]]:8: error: invalid operand for instruction
+
+# Check invalid operands order for different formats
+# Instruction format RRI8
+addi a1, 10, a2 # CHECK: :[[@LINE]]:10: error: invalid operand for instruction
+# Instruction format RSR
+wsr sar, a2 # CHECK: :[[@LINE]]:5: error: invalid operand for instruction
+# Instruction format BRI12
+beqz LBL0, a2 # CHECK: :[[@LINE]]:6: error: invalid operand for instruction
+# Instruction format BRI8
+bltui 16, a7, LBL0 # CHECK: :[[@LINE]]:7: error: invalid operand for instruction
+bltui a7, LBL0, 16 # CHECK: :[[@LINE]]:20: error: unknown operand
+

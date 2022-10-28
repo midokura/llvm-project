@@ -5,6 +5,7 @@
 .align	4
 LBL0:
 
+# Instruction format RRR
 # CHECK-INST:  rfi	1
 # CHECK: encoding: [0x10,0x31,0x00]
  rfi 1
@@ -12,7 +13,7 @@ LBL0:
 # CHECK-INST:  rsil	a3, 1
 # CHECK: encoding: [0x30,0x61,0x00]
  rsil a3, 1
- 
+
 # CHECK-INST:  waiti	1
 # CHECK: encoding: [0x00,0x71,0x00]
  waiti 1
