@@ -13,13 +13,19 @@ using namespace llvm;
 #define DEBUG_TYPE "xtensatti"
 
 static cl::opt<bool> DisableLowOverheadLoops(
-    "disable-xtensa-hwloops", cl::Hidden, cl::init(false),
+    "disable-xtensa-hwloops", cl::Hidden, cl::init(true),
     cl::desc("Disable the generation of hardware loops"));
 
 bool XtensaTTIImpl::isHardwareLoopProfitable(Loop *L, ScalarEvolution &SE,
                                              AssumptionCache &AC,
                                              TargetLibraryInfo *LibInfo,
                                              HardwareLoopInfo &HWLoopInfo) {
+  // Disable hw loops when literals are placed in text section.
+  // TODO: Implement support of hw loops in ConstantIslands pass
+  if (ST->useTextSectionLiterals()) {
+    return false;
+  }
+
   if (DisableLowOverheadLoops)
     return false;
 
